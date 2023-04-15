@@ -7,7 +7,7 @@ import se.llbit.math.Quad;
  * A quad-based BlockModel which can be rotated horizontally (around y-axis) using a given facing.
  * Defaults to a full block, but can be customized by providing own quads.
  */
-public class TopBottomOrientedTexturedBlockModel extends QuadModel {
+public class TopBottomOrientedTexturedBlockModel implements QuadModel {
 
   protected final Quad[] quads;
   protected final Texture[] textures;

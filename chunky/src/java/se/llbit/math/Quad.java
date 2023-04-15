@@ -41,16 +41,14 @@ public class Quad {
    */
   public final boolean doubleSided;
 
-  /**
-   * Normal vector
-   */
+  public int textureRotation = 0; // 0, 90, 180 or 270
+
+  /** Normal vector */
   public Vector3 n = new Vector3();
 
   protected double d, xvl, yvl;
 
-  /**
-   * Create new Quad by copying another quad and applying a transform.
-   */
+  /** Create new Quad by copying another quad and applying a transform. */
   public Quad(Quad other, Transform t) {
     this.doubleSided = other.doubleSided;
     o.set(other.o);
@@ -67,15 +65,14 @@ public class Quad {
     t.applyRotScale(xv);
     t.applyRotScale(yv);
     t.applyRotScale(n);
-    xvl = other.xvl;
-    yvl = other.yvl;
+    xvl = 1 / xv.lengthSquared();
+    yvl = 1 / yv.lengthSquared();
     d = -n.dot(o);
     uv.set(other.uv);
+    textureRotation = other.textureRotation;
   }
 
-  /**
-   * Create transformed Quad
-   */
+  /** Create transformed Quad */
   public Quad(Quad other, Matrix3 t) {
     this.doubleSided = other.doubleSided;
     o.set(other.o);
@@ -92,10 +89,11 @@ public class Quad {
     t.transform(xv);
     t.transform(yv);
     t.transform(n);
-    xvl = other.xvl;
-    yvl = other.yvl;
+    xvl = 1 / xv.lengthSquared();
+    yvl = 1 / yv.lengthSquared();
     d = -n.dot(o);
     uv.set(other.uv);
+    textureRotation = other.textureRotation;
   }
 
   /**
@@ -176,9 +174,12 @@ public class Quad {
         u *= xvl;
         v = ix * yv.x + iy * yv.y + iz * yv.z;
         v *= yvl;
+
         if (u >= 0 && u <= 1 && v >= 0 && v <= 1) {
-          ray.u = uv.x + u * uv.y;
-          ray.v = uv.z + v * uv.w;
+          double pu = (u - 0.5) * cos(textureRotation) - (v - 0.5) * sin(textureRotation) + 0.5;
+          double pv = (u - 0.5) * sin(textureRotation) + (v - 0.5) * cos(textureRotation) + 0.5;
+          ray.u = uv.x + pu * uv.y;
+          ray.v = uv.z + pv * uv.w;
           ray.tNext = t;
           return true;
         }
@@ -187,17 +188,15 @@ public class Quad {
     return false;
   }
 
-  /**
-   * @return Scaled copy of this quad
-   */
+  /** @return Scaled copy of this quad */
   public Quad getScaled(double scale) {
     Matrix3 transform = new Matrix3();
     transform.scale(scale);
     return new Quad(this, transform);
   }
 
-  public void addTriangles(Collection<Primitive> primitives, Material material,
-      Transform transform) {
+  public void addTriangles(
+      Collection<Primitive> primitives, Material material, Transform transform) {
     Vector3 c0 = new Vector3(o);
     Vector3 c1 = new Vector3();
     Vector3 c2 = new Vector3();
@@ -213,16 +212,77 @@ public class Quad {
     double u1 = uv.x + uv.y;
     double v0 = uv.z;
     double v1 = uv.z + uv.w;
-    primitives.add(new TexturedTriangle(c0, c2, c1, new Vector2(u0, v0), new Vector2(u0, v1),
-        new Vector2(u1, v0), material, doubleSided));
-    primitives.add(new TexturedTriangle(c1, c2, c3, new Vector2(u1, v0), new Vector2(u0, v1),
-        new Vector2(u1, v1), material, doubleSided));
+
+    if (textureRotation == 90) {
+      primitives.add(
+          new TexturedTriangle(
+              c0, c2, c1, new Vector2(u1, v0), new Vector2(u0, v0), new Vector2(u1, v1), material, doubleSided));
+      primitives.add(
+          new TexturedTriangle(
+              c1, c2, c3, new Vector2(u1, v1), new Vector2(u0, v0), new Vector2(u0, v1), material, doubleSided));
+    } else if (textureRotation == 180) {
+      primitives.add(
+          new TexturedTriangle(
+              c0, c2, c1, new Vector2(u1, v1), new Vector2(u1, v0), new Vector2(u0, v1), material, doubleSided));
+      primitives.add(
+          new TexturedTriangle(
+              c1, c2, c3, new Vector2(u0, v1), new Vector2(u1, v0), new Vector2(u0, v0), material, doubleSided));
+    } else if (textureRotation == 270) {
+      primitives.add(
+          new TexturedTriangle(
+              c0, c2, c1, new Vector2(u0, v1), new Vector2(u1, v1), new Vector2(u0, v0), material, doubleSided));
+      primitives.add(
+          new TexturedTriangle(
+              c1, c2, c3, new Vector2(u0, v0), new Vector2(u1, v1), new Vector2(u1, v0), material, doubleSided));
+    } else {
+      primitives.add(
+          new TexturedTriangle(
+              c0, c2, c1, new Vector2(u0, v0), new Vector2(u0, v1), new Vector2(u1, v0), material, doubleSided));
+      primitives.add(
+          new TexturedTriangle(
+              c1, c2, c3, new Vector2(u1, v0), new Vector2(u0, v1), new Vector2(u1, v1), material, doubleSided));
+    }
   }
 
-  /**
-   * Build a transformed copy of this quad.
-   */
+  /** Build a transformed copy of this quad. */
   public Quad transform(Transform transform) {
     return new Quad(this, transform);
+  }
+
+  /** Check if this quad fits into a 1x1x1 cube. */
+  public boolean fitsInBlock() {
+    if (o.x < 0 || o.x > 1 || o.y < 0 || o.y > 1 || o.z < 0 || o.z > 1) return false;
+    Vector3 t = new Vector3(o);
+    t.add(xv);
+    t.add(yv);
+    return !(t.x < 0 || t.x > 1 || t.y < 0 || t.y > 1 || t.z < 0 || t.z > 1);
+  }
+
+  private static double cos(int angle) {
+    switch (angle) {
+      case 0:
+        return 1;
+      case 90:
+      case 270:
+        return 0;
+      case 180:
+        return -1;
+      default:
+        return Math.cos(Math.toRadians(angle));
+    }
+  }
+
+  private static double sin(int angle) {
+    switch (angle) {
+      case 0:
+      case 180:
+        return 0;
+      case 90:
+        return 1;
+      case 270:
+        return -1;
+      default:
+        return Math.sin(Math.toRadians(angle));
+    }
   }
 }

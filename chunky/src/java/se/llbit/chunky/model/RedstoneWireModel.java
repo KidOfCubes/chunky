@@ -26,7 +26,7 @@ import se.llbit.math.Vector4;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class RedstoneWireModel extends QuadModel {
+public class RedstoneWireModel implements QuadModel {
   //region Model
   private static final Quad[] model = {
       // 0000 no connection
@@ -116,7 +116,7 @@ public class RedstoneWireModel extends QuadModel {
       Texture.redstoneWireCross, Texture.redstoneWireCross, Texture.redstoneWireCross
   };
 
-  private static final Tint[] wireTints = new Tint[16];
+  public static final Tint[] wireTints = new Tint[16];
 
   static {
     float[] color0 = new float[3];
