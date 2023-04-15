@@ -8,7 +8,7 @@ import se.llbit.math.Quad;
  * Unlike TopBottomOrientedTexturedBlockModel, this ONLY rotates the sides - the top and bottom are not rotated.
  * Defaults to a full block, but can be customized by providing own quads.
  */
-public class FixedTopBottomRotatableTexturedBlockModel extends QuadModel {
+public class FixedTopBottomRotatableTexturedBlockModel implements QuadModel {
 
   protected final Quad[] quads;
   protected final Texture[] textures;
