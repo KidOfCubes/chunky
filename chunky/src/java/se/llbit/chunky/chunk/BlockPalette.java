@@ -17,6 +17,7 @@
 package se.llbit.chunky.chunk;
 
 import se.llbit.chunky.block.*;
+import se.llbit.chunky.block.minecraft.*;
 import se.llbit.chunky.plugin.PluginApi;
 import se.llbit.math.Octree;
 import se.llbit.nbt.CompoundTag;
@@ -522,28 +523,25 @@ public class BlockPalette {
       }
     });
     materialProperties.put("minecraft:small_amethyst_bud", block -> {
-      if (block instanceof AmethystCluster && ((AmethystCluster) block).isLit()) {
-        block.emittance = 1.0f / 15f;
-      }
+      block.emittance = 1.0f / 15f;
     });
     materialProperties.put("minecraft:medium_amethyst_bud", block -> {
-      if (block instanceof AmethystCluster && ((AmethystCluster) block).isLit()) {
-        block.emittance = 1.0f / 15f * 2;
-      }
+      block.emittance = 1.0f / 15f * 2;
     });
     materialProperties.put("minecraft:large_amethyst_bud", block -> {
-      if (block instanceof AmethystCluster && ((AmethystCluster) block).isLit()) {
-        block.emittance = 1.0f / 15f * 4;
-      }
+      block.emittance = 1.0f / 15f * 4;
     });
     materialProperties.put("minecraft:amethyst_cluster", block -> {
-      if (block instanceof AmethystCluster && ((AmethystCluster) block).isLit()) {
-        block.emittance = 1.0f / 15f * 5;
-      }
+      block.emittance = 1.0f / 15f * 5;
     });
     materialProperties.put("minecraft:tinted_glass", glassConfig);
     materialProperties.put("minecraft:sculk_sensor", block -> {
       if (block instanceof SculkSensor && ((SculkSensor) block).isActive()) {
+        block.emittance = 1.0f / 15f;
+      }
+    });
+    materialProperties.put("minecraft:calibrated_sculk_sensor", block -> {
+      if (block instanceof CalibratedSculkSensor && ((CalibratedSculkSensor) block).isActive()) {
         block.emittance = 1.0f / 15f;
       }
     });

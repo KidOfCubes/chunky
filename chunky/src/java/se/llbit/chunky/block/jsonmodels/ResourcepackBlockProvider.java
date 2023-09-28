@@ -21,9 +21,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.math3.util.FastMath;
 import se.llbit.chunky.block.*;
+import se.llbit.chunky.block.minecraft.Air;
+import se.llbit.chunky.block.minecraft.UnknownBlock;
 import se.llbit.chunky.entity.Entity;
-import se.llbit.chunky.model.RedstoneWireModel;
 import se.llbit.chunky.model.Tint;
+import se.llbit.chunky.model.minecraft.RedstoneWireModel;
 import se.llbit.chunky.renderer.scene.Scene;
 import se.llbit.chunky.resources.AnimatedTexture;
 import se.llbit.chunky.resources.BitmapImage;

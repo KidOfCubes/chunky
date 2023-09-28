@@ -3,10 +3,13 @@ package se.llbit.chunky.block;
 import java.util.*;
 import java.util.function.BiFunction;
 
+import se.llbit.chunky.block.minecraft.*;
+import se.llbit.chunky.block.minecraft.Comparator;
+import se.llbit.chunky.block.minecraft.Observer;
 import se.llbit.chunky.entity.SkullEntity;
-import se.llbit.chunky.model.FlowerPotModel;
-import se.llbit.chunky.model.FlowerPotModel.Kind;
 import se.llbit.chunky.model.Tint;
+import se.llbit.chunky.model.minecraft.FlowerPotModel;
+import se.llbit.chunky.model.minecraft.FlowerPotModel.Kind;
 import se.llbit.chunky.resources.EntityTexture;
 import se.llbit.chunky.resources.ShulkerTexture;
 import se.llbit.chunky.resources.Texture;
@@ -1035,8 +1038,42 @@ public class MinecraftBlockProvider implements BlockProvider {
       tag.get("Properties").get("slot_4_occupied").stringValue("false").equals("true"),
       tag.get("Properties").get("slot_5_occupied").stringValue("false").equals("true")));
     addBlock("decorated_pot", (name, tag) -> decoratedPot(tag));
-    addBlock("sniffer_egg", (name, tag) -> new SnifferEgg(name, BlockProvider.stringToInt(tag.get("Properties").get("age"), 0)));
+    addBlock("sniffer_egg", (name, tag) -> new SnifferEgg(name, BlockProvider.stringToInt(tag.get("Properties").get("hatch"), 0)));
     addBlock("pink_petals", (name, tag) -> new PinkPetals(name, BlockProvider.stringToInt(tag.get("Properties").get("flower_amount"), 1), BlockProvider.facing(tag)));
+    addBlock("pitcher_plant", (name, tag) -> new PitcherPlant(name, tag.get("Properties").get("half").stringValue("lower")));
+    addBlock("pitcher_crop", (name, tag) -> {
+      int age = BlockProvider.stringToInt(tag.get("Properties").get("age"), 0);
+      String half = tag.get("Properties").get("half").stringValue("lower");
+      if (half.equals("upper") && age < 2) {
+        return Air.INSTANCE;
+      }
+      return new PitcherCrop(age, half);
+    });
+    addBlock("calibrated_sculk_sensor", (name, tag) -> new CalibratedSculkSensor(
+      tag.get("Properties").get("sculk_sensor_phase").stringValue("cooldown"),
+      tag.get("Properties").get("facing").stringValue("north")));
+    addBlock("oak_hanging_sign", (name, tag) -> hangingSign(tag, "oak"));
+    addBlock("oak_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "oak"));
+    addBlock("spruce_hanging_sign", (name, tag) -> hangingSign(tag, "spruce"));
+    addBlock("spruce_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "spruce"));
+    addBlock("birch_hanging_sign", (name, tag) -> hangingSign(tag, "birch"));
+    addBlock("birch_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "birch"));
+    addBlock("jungle_hanging_sign", (name, tag) -> hangingSign(tag, "jungle"));
+    addBlock("jungle_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "jungle"));
+    addBlock("acacia_hanging_sign", (name, tag) -> hangingSign(tag, "acacia"));
+    addBlock("acacia_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "acacia"));
+    addBlock("dark_oak_hanging_sign", (name, tag) -> hangingSign(tag, "dark_oak"));
+    addBlock("dark_oak_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "dark_oak"));
+    addBlock("crimson_hanging_sign", (name, tag) -> hangingSign(tag, "crimson"));
+    addBlock("crimson_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "crimson"));
+    addBlock("warped_hanging_sign", (name, tag) -> hangingSign(tag, "warped"));
+    addBlock("warped_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "warped"));
+    addBlock("mangrove_hanging_sign", (name, tag) -> hangingSign(tag, "mangrove"));
+    addBlock("mangrove_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "mangrove"));
+    addBlock("bamboo_hanging_sign", (name, tag) -> hangingSign(tag, "bamboo"));
+    addBlock("bamboo_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "bamboo"));
+    addBlock("cherry_hanging_sign", (name, tag) -> hangingSign(tag, "cherry"));
+    addBlock("cherry_wall_hanging_sign", (name, tag) -> wallHangingSign(tag, "cherry"));
   }
 
   public static Tint[] getHardCodedTints(String blockName) {
@@ -2902,17 +2939,13 @@ public class MinecraftBlockProvider implements BlockProvider {
       case "lightning_rod":
         return new LightningRod(BlockProvider.facing(tag, "up"), tag.get("Properties").get("powered").stringValue("false").equals("true"));
       case "small_amethyst_bud":
-        return new AmethystCluster(name, Texture.smallAmethystBud, BlockProvider.facing(tag, "up"),
-            isLit(tag, true));
+        return new SpriteBlock(name, Texture.smallAmethystBud, BlockProvider.facing(tag, "up"));
       case "medium_amethyst_bud":
-        return new AmethystCluster(name, Texture.mediumAmethystBud, BlockProvider.facing(tag, "up"),
-            isLit(tag, true));
+        return new SpriteBlock(name, Texture.mediumAmethystBud, BlockProvider.facing(tag, "up"));
       case "large_amethyst_bud":
-        return new AmethystCluster(name, Texture.largeAmethystBud, BlockProvider.facing(tag, "up"),
-            isLit(tag, true));
+        return new SpriteBlock(name, Texture.largeAmethystBud, BlockProvider.facing(tag, "up"));
       case "amethyst_cluster":
-        return new AmethystCluster(name, Texture.amethystCluster, BlockProvider.facing(tag, "up"),
-            isLit(tag, true));
+        return new SpriteBlock(name, Texture.amethystCluster, BlockProvider.facing(tag, "up"));
       case "tinted_glass":
         return new TintedGlass();
       case "powder_snow":
@@ -3278,6 +3311,17 @@ public class MinecraftBlockProvider implements BlockProvider {
     String name = BlockProvider.blockName(tag);
     int rotation = BlockProvider.stringToInt(tag.get("Properties").get("rotation"), 0);
     return new Sign(name, material, rotation);
+  }
+
+  private static Block hangingSign(Tag tag, String material) {
+    String name = BlockProvider.blockName(tag);
+    int rotation = BlockProvider.stringToInt(tag.get("Properties").get("rotation"), 0);
+    boolean attached = tag.get("Properties").get("attached").stringValue("false").equals("true");
+    return new HangingSign(name, material, rotation, attached);
+  }
+
+  private static Block wallHangingSign(Tag tag, String material) {
+    return new WallHangingSign(BlockProvider.blockName(tag), material, BlockProvider.facing(tag));
   }
 
   private static Block banner(Tag tag, Texture texture, int color) {
