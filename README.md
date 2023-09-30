@@ -1,3 +1,15 @@
+# Loading the wynncraft texture pack (OLD):
+1. add wynn pack on top of minecraft default texture pack (extracted manually, not with the game's version)
+2. reload chunks
+3. remove minecraft default texture pack
+4. reload chunks
+
+might be required every time load? (BEING FIXED)
+	
+	
+
+
+
 <p align="center">
   <a href="http://chunky.llbit.se" rel="noopener" target="_blank"><img width="100" src="https://raw.githubusercontent.com/llbit/chunky-docs/master/images/logo.png" alt="Chunky logo"></a>
 </p>

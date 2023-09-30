@@ -1116,7 +1116,7 @@ public class ResourcepackBlockProvider implements BlockProvider {
         } catch (NoSuchFileException ignore) {
         }
       }
-      throw new NoSuchFileException("File not found: " + path.toString());
+      throw new NoSuchFileException("File not found: " + Arrays.toString(path));
     }
 
     @Override

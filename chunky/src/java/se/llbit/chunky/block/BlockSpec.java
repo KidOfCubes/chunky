@@ -50,9 +50,18 @@ public class BlockSpec {
   public Block toBlock() {
     String name = tag.get("Name").stringValue("unknown:unknown");
     for (BlockProvider provider : blockProviders) {
-      Block block = provider.getBlockByTag(name, tag);
-      if (block != null) {
-        return maybeWaterlogged(block);
+      if(name.contains("minecraft:grass_block")){
+        System.out.print("");
+//        if(provider instanceof MinecraftBlockProvider) continue;
+        Block block = provider.getBlockByTag(name, tag);
+        if (block != null) {
+          return maybeWaterlogged(block);
+        }
+      }else{
+        Block block = provider.getBlockByTag(name, tag);
+        if (block != null) {
+          return maybeWaterlogged(block);
+        }
       }
     }
     return new UnknownBlock(name);

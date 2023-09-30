@@ -110,9 +110,6 @@ public class Chunky {
 
   public Chunky(ChunkyOptions options) {
     this.options = options;
-    registerBlockProvider(new MinecraftBlockProvider());
-    // registerBlockProvider(new LegacyMinecraftBlockProvider());
-    registerBlockProvider(new ResourcepackBlockProvider());
   }
 
   /**
@@ -210,6 +207,9 @@ public class Chunky {
    * the classpath with all dependencies.
    */
   public static void main(final String[] args) {
+    registerBlockProvider(new MinecraftBlockProvider());
+    // registerBlockProvider(new LegacyMinecraftBlockProvider());
+    registerBlockProvider(new ResourcepackBlockProvider());
     CommandLineOptions cmdline = new CommandLineOptions(args);
 
     if (cmdline.configurationError) {
@@ -508,7 +508,7 @@ public class Chunky {
    * Registers a block provider to add support for blocks.
    */
   @PluginApi
-  public void registerBlockProvider(BlockProvider blockProvider) {
+  public static void registerBlockProvider(BlockProvider blockProvider) {
     BlockSpec.blockProviders.add(0, blockProvider);
     MaterialStore.blockIds.addAll(blockProvider.getSupportedBlocks());
   }
