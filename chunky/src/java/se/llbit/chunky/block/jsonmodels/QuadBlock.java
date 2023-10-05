@@ -1,6 +1,8 @@
 package se.llbit.chunky.block.jsonmodels;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import se.llbit.chunky.block.Block;
 import se.llbit.chunky.block.ModelBlock;
@@ -33,10 +35,16 @@ public class QuadBlock extends Block implements QuadModel, ModelBlock {
     localIntersect = true;
     opaque = false;
     solid = false;
-    invisible = isEntity;
+    invisible = true;
     this.isEntity = isEntity;
     this.textures = textures;
     this.quads = quads;
+    for (int i = 0; i < quads.length; i++) {
+      if(quads[i].fitsInBlock()){
+        invisible=false;
+        break;
+      }
+    }
   }
 
   @Override
@@ -71,6 +79,7 @@ public class QuadBlock extends Block implements QuadModel, ModelBlock {
                 position.x + offset.x, position.y + offset.y, position.z + offset.z);
         for (int i = 0; i < quads.length; i++) {
           Quad quad = quads[i];
+          if(quad.fitsInBlock()) continue;
           Texture texture = textures[i];
           Material material = new TextureMaterial(texture);
           material.emittance = emittance;

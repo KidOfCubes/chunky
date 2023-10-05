@@ -266,7 +266,7 @@ public class Scene implements JsonSerializable, Refreshable {
   private Octree worldOctree;
   private Octree waterOctree;
 
-  private SceneEntities entities = new SceneEntities();
+  private SceneEntities entities = new SceneEntities(this);
 
   /** Material properties for this scene. */
   public Map<String, JsonValue> materials = new HashMap<>();
@@ -996,18 +996,16 @@ public class Scene implements JsonSerializable, Refreshable {
                       continue;
                     }
 
-                    if (entities.shouldLoad(blockEntity)) {
-                      if (blockEntity instanceof Poseable) {
-                        entities.addActor(blockEntity);
-                      } else {
-                        entities.addEntity(blockEntity);
-                        if (emitterGrid != null) {
-                          for (Grid.EmitterPosition emitterPos : blockEntity.getEmitterPosition()) {
-                            emitterPos.x -= origin.x;
-                            emitterPos.y -= origin.y;
-                            emitterPos.z -= origin.z;
-                            emitterGrid.addEmitter(emitterPos);
-                          }
+                    if (blockEntity instanceof Poseable) {
+                      entities.addActor(blockEntity);
+                    } else {
+                      entities.addEntity(blockEntity);
+                      if (emitterGrid != null) {
+                        for (Grid.EmitterPosition emitterPos : blockEntity.getEmitterPosition()) {
+                          emitterPos.x -= origin.x;
+                          emitterPos.y -= origin.y;
+                          emitterPos.z -= origin.z;
+                          emitterGrid.addEmitter(emitterPos);
                         }
                       }
                     }

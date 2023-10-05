@@ -894,6 +894,9 @@ public class ResourcepackBlockProvider implements BlockProvider {
             Transform.NONE.translate(
               position.x + offset.x, position.y + offset.y, position.z + offset.z);
           for (JsonModelElement element : elements) {
+            if(!element.requiresBlockEntity()){
+              continue;
+            }
             for (JsonModelFace face : element.faces) {
               if (face != null && face.quad != null) {
                 Texture texture = textures.get(face.texture);

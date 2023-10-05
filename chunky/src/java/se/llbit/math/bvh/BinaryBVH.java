@@ -20,9 +20,11 @@ package se.llbit.math.bvh;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntStack;
 import org.apache.commons.math3.util.FastMath;
+import se.llbit.chunky.renderer.scene.Scene;
 import se.llbit.math.AABB;
 import se.llbit.math.Ray;
 import se.llbit.math.primitive.Primitive;
+import se.llbit.math.primitive.TintedTexturedTriangle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -138,6 +140,12 @@ public abstract class BinaryBVH implements BVH {
         }
     }
 
+    private final Scene mainScene;
+
+    public BinaryBVH(Scene mainScene){
+      this.mainScene=mainScene;
+    }
+
     /**
      * Helper method to pack a node-based BVH. Uses {@code packNode}.
      */
@@ -226,7 +234,12 @@ public abstract class BinaryBVH implements BVH {
                 // Is leaf
                 int primIndex = -packed[currentNode];
                 for (Primitive primitive : packedPrimitives[primIndex]) {
-                    hit = primitive.intersect(ray) | hit;
+                    if (primitive.intersect(ray)) {
+                        hit = true;
+                        if(primitive instanceof TintedTexturedTriangle){
+                            ((TintedTexturedTriangle)primitive).getTint().tint(ray.color, ray, mainScene);
+                        }
+                    }
                 }
 
                 if (nodesToVisit.isEmpty()) break;

@@ -19,6 +19,7 @@ package se.llbit.math.bvh;
 
 import se.llbit.chunky.entity.Entity;
 import se.llbit.chunky.plugin.PluginApi;
+import se.llbit.chunky.renderer.scene.Scene;
 import se.llbit.log.Log;
 import se.llbit.math.Intersectable;
 import se.llbit.math.Ray;
@@ -46,7 +47,7 @@ public interface BVH extends Intersectable {
   final class Factory {
 
     public interface BVHBuilder {
-      BVH create(Collection<Entity> entities, Vector3 worldOffset, TaskTracker.Task task);
+      BVH create(Collection<Entity> entities, Vector3 worldOffset, Scene scene, TaskTracker.Task task);
 
       String getName();
       String getDescription();
@@ -95,11 +96,11 @@ public interface BVH extends Intersectable {
      * Construct a new BVH containing the given entities. This will generate the BVH using the
      * persistent BVH method (default is SAH_MA).
      */
-    public static BVH create(String implementation, Collection<Entity> entities, Vector3 worldOffset, TaskTracker.Task task) {
+    public static BVH create(String implementation, Collection<Entity> entities, Vector3 worldOffset, Scene scene, TaskTracker.Task task) {
       if (entities.isEmpty()) {
         return BVH.EMPTY;
       } else {
-        return getImplementation(implementation).create(entities, worldOffset, task);
+        return getImplementation(implementation).create(entities, worldOffset, scene, task);
       }
     }
   }

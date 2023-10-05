@@ -19,6 +19,7 @@ package se.llbit.math.bvh;
 
 import se.llbit.chunky.entity.Entity;
 import se.llbit.chunky.main.Chunky;
+import se.llbit.chunky.renderer.scene.Scene;
 import se.llbit.log.Log;
 import se.llbit.math.AABB;
 import se.llbit.math.Vector3;
@@ -33,7 +34,7 @@ public class SahMaBVH extends BinaryBVH {
     public static void registerImplementation() {
         Factory.addBVHBuilder(new Factory.BVHBuilder() {
             @Override
-            public BVH create(Collection<Entity> entities, Vector3 worldOffset, TaskTracker.Task task) {
+            public BVH create(Collection<Entity> entities, Vector3 worldOffset, Scene mainScene, TaskTracker.Task task) {
                 task.update(1000, 0);
                 double entityScaler = 500.0 / entities.size();
                 int done = 0;
@@ -49,7 +50,7 @@ public class SahMaBVH extends BinaryBVH {
                 primitives = null; // Allow the collection to be garbage collected during construction when only the array is used
 
                 double primitiveScaler = 500.0 / allPrimitives.length;
-                return new SahMaBVH(allPrimitives, i -> task.updateInterval((int) (i * primitiveScaler) + 500, 1));
+                return new SahMaBVH(allPrimitives, mainScene, i -> task.updateInterval((int) (i * primitiveScaler) + 500, 1));
             }
 
             @Override
@@ -64,7 +65,8 @@ public class SahMaBVH extends BinaryBVH {
         });
     }
 
-    public SahMaBVH(Primitive[] primitives, IntConsumer task) {
+    public SahMaBVH(Primitive[] primitives, Scene mainScene, IntConsumer task) {
+        super(mainScene);
         Node root = constructSAH_MA(primitives, task);
         pack(root);
         Log.info("Built SAH_MA BVH with depth " + this.depth);

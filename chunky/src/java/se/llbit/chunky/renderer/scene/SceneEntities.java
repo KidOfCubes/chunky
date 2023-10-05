@@ -67,6 +67,11 @@ public class SceneEntities {
    */
   private String bvhImplementation = PersistentSettings.getBvhMethod();
 
+  private final Scene mainScene;
+  public SceneEntities(Scene mainScene){
+    this.mainScene=mainScene;
+  }
+
   public void copyState(SceneEntities other) {
     entityLoadingPreferences = other.entityLoadingPreferences;
     entities = other.entities;
@@ -246,12 +251,12 @@ public class SceneEntities {
 
   public void buildBvh(TaskTracker.Task task, Vector3i origin) {
     Vector3 worldOffset = new Vector3(-origin.x, -origin.y, -origin.z);
-    bvh = BVH.Factory.create(bvhImplementation, entities, worldOffset, task);
+    bvh = BVH.Factory.create(bvhImplementation, entities, worldOffset, mainScene, task);
   }
 
   public void buildActorBvh(TaskTracker.Task task, Vector3i origin) {
     Vector3 worldOffset = new Vector3(-origin.x, -origin.y, -origin.z);
-    actorBvh = BVH.Factory.create(bvhImplementation, actors, worldOffset, task);
+    actorBvh = BVH.Factory.create(bvhImplementation, actors, worldOffset, mainScene, task);
   }
 
   public void finalizeLoading() {
