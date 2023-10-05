@@ -20,6 +20,7 @@ package se.llbit.chunky.renderer.scene;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
 import se.llbit.chunky.PersistentSettings;
+import se.llbit.chunky.block.jsonmodels.QuadBlock;
 import se.llbit.chunky.block.minecraft.Air;
 import se.llbit.chunky.block.Block;
 import se.llbit.chunky.block.minecraft.Lava;
@@ -989,6 +990,28 @@ public class Scene implements JsonSerializable, Refreshable {
                   int octNode = currentBlock;
                   Block block = palette.get(currentBlock);
 
+                  if(block.isBlockEntity()&&block instanceof QuadBlock){ //quickfix for blockentities
+                    Entity blockEntity = block.toBlockEntity(new Vector3(cx + cp.x * 16,y,cz + cp.z * 16), null);
+                    if (blockEntity == null) {
+                      continue;
+                    }
+
+                    if (entities.shouldLoad(blockEntity)) {
+                      if (blockEntity instanceof Poseable) {
+                        entities.addActor(blockEntity);
+                      } else {
+                        entities.addEntity(blockEntity);
+                        if (emitterGrid != null) {
+                          for (Grid.EmitterPosition emitterPos : blockEntity.getEmitterPosition()) {
+                            emitterPos.x -= origin.x;
+                            emitterPos.y -= origin.y;
+                            emitterPos.z -= origin.z;
+                            emitterGrid.addEmitter(emitterPos);
+                          }
+                        }
+                      }
+                    }
+                  }
                   if(block.isEntity()) {
                     Vector3 position = new Vector3(cx + cp.x * 16, y, cz + cp.z * 16);
                     Entity entity = block.toEntity(position);
