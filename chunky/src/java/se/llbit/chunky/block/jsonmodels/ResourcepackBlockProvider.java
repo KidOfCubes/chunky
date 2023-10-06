@@ -290,7 +290,7 @@ public class ResourcepackBlockProvider implements BlockProvider {
 
     public BlockStateCondition(JsonObject conditions) {
       for (JsonMember member : conditions.members) {
-        this.conditions.put(member.getName(), member.getValue().stringValue(""));
+        this.conditions.put(member.getName(), member.getValue().toCompactString());
       }
     }
 
